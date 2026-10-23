@@ -1,0 +1,8 @@
+# Secrets
+.env
+
+# Local project mounts
+docker-compose.override.yml
+
+# Claude Code local settings
+.claude/settings.local.json

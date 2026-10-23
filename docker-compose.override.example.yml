@@ -1,0 +1,7 @@
+# Copy to docker-compose.override.yml (gitignored) and list the host folders
+# Claude should work in. Compose merges the override file automatically.
+# Create the host folders first, otherwise Docker creates them owned by root.
+services:
+  claude-desktop:
+    volumes:
+      - ${HOME}/Projects:/home/claude/Projects

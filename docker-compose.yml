@@ -1,0 +1,58 @@
+services:
+  claude-desktop:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER_UID: "${USER_UID:-1000}"
+        USER_GID: "${USER_GID:-1000}"
+    image: claude-desktop:latest
+    container_name: claude-desktop
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+      - WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
+      - XDG_CURRENT_DESKTOP=GNOME
+      - XDG_RUNTIME_DIR=/tmp/runtime-claude
+      - PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native
+      - SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN:-}
+      - SENTRY_URL=${SENTRY_URL:-}
+      - SENTRY_ORG=${SENTRY_ORG:-}
+    volumes:
+      # X11 Display socket (GeeksforGeeks method)
+      - /tmp/.X11-unix:/tmp/.X11-unix:ro
+      # Audio socket (PulseAudio / PipeWire)
+      - ${XDG_RUNTIME_DIR}/pulse/native:${XDG_RUNTIME_DIR}/pulse/native:ro
+      # GPU Hardware Acceleration
+      - /dev/dri:/dev/dri
+      # Host SSH keys (read-only for security)
+      - ${HOME}/.ssh:/home/claude/.ssh:ro
+      # Host git identity and config (read-only)
+      - ${HOME}/.gitconfig:/home/claude/.gitconfig:ro
+      - ${HOME}/.config/git:/home/claude/.config/git:ro
+      # Entrypoint script
+      - ./entrypoint.sh:/usr/local/bin/entrypoint.sh:ro
+      # Custom Docker-badged window and tray icons
+      - ./assets/icon.png:/usr/lib/claude-desktop/resources/icon.png:ro
+      - ./assets/TrayIconLinux.png:/usr/lib/claude-desktop/resources/TrayIconLinux.png:ro
+      - ./assets/TrayIconLinux-Dark.png:/usr/lib/claude-desktop/resources/TrayIconLinux-Dark.png:ro
+      - ./assets/TrayIconTemplate.png:/usr/lib/claude-desktop/resources/TrayIconTemplate.png:ro
+      - ./assets/TrayIconTemplate-Dark.png:/usr/lib/claude-desktop/resources/TrayIconTemplate-Dark.png:ro
+      - ./assets/TrayIconTemplate@2x.png:/usr/lib/claude-desktop/resources/TrayIconTemplate@2x.png:ro
+      - ./assets/TrayIconTemplate-Dark@2x.png:/usr/lib/claude-desktop/resources/TrayIconTemplate-Dark@2x.png:ro
+      - ./assets/TrayIconTemplate@3x.png:/usr/lib/claude-desktop/resources/TrayIconTemplate@3x.png:ro
+      - ./assets/TrayIconTemplate-Dark@3x.png:/usr/lib/claude-desktop/resources/TrayIconTemplate-Dark@3x.png:ro
+      # Project mounts live in docker-compose.override.yml (see docker-compose.override.example.yml)
+      # Host Docker daemon access (Docker outside of Docker)
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Persistent configuration, login tokens, MCP settings and CLI configs
+      - claude-home:/home/claude
+    group_add:
+      - "${DOCKER_GID:-984}"
+    devices:
+      - /dev/dri:/dev/dri
+    # Required by Electron/Chromium to prevent shared memory crashes
+    ipc: host
+    network_mode: host
+
+volumes:
+  claude-home:
