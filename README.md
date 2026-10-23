@@ -2,6 +2,8 @@
 
 Runs the official **Claude Desktop** app (Anthropic APT package) inside a Docker container on a Linux desktop, shown on the host screen through X11 (XWayland). It runs side by side with a host-installed Claude Desktop, keeps its own login, keyring and settings, and shows up in the dock as a separate **Claude (Docker)** app.
 
+> **Unofficial, not affiliated with Anthropic.** This is a personal, non-commercial setup that installs the official Claude Desktop package. Claude and the Claude logo are trademarks of Anthropic.
+
 ![Claude Desktop in Docker](claude-docker.png)
 
 ---
